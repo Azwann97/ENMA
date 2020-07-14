@@ -127,56 +127,69 @@ class AllBranchList extends StatelessWidget {
       itemBuilder: (BuildContext context, int i){
         String name = document[i].data['BranchName'].toString();
 
-        return Padding(
-            padding: const EdgeInsets.only(left: 16.0, top: 8.0, right: 16.0, bottom: 8.0),
-            child: new Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                new Expanded(
-                    child: Container(
-                      width: 250,
-                      height: 70,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(10),
-                            topRight: Radius.circular(10),
-                            bottomLeft: Radius.circular(10),
-                            bottomRight: Radius.circular(10)
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.5),
-                            spreadRadius: 5,
-                            blurRadius: 7,
-                            offset: Offset(0, 3), // changes position of shadow
+        return Dismissible(
+          key: new Key(document[i].documentID),
+          onDismissed: (direction){
+            Firestore.instance.runTransaction((transaction) async{
+              DocumentSnapshot snapshot = await transaction.get(document[i].reference);
+              await transaction.delete(snapshot.reference);
+            });
+
+            Scaffold.of(context).showSnackBar(
+              new SnackBar(content: new Text("Branch deleted"),)
+            );
+          },
+          child: Padding(
+              padding: const EdgeInsets.only(left: 16.0, top: 8.0, right: 16.0, bottom: 8.0),
+              child: new Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  new Expanded(
+                      child: Container(
+                        width: 250,
+                        height: 70,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(10),
+                              topRight: Radius.circular(10),
+                              bottomLeft: Radius.circular(10),
+                              bottomRight: Radius.circular(10)
                           ),
-                        ],
-                      ),
-                      child: Row(
-                        children: <Widget>[
-                          Expanded(
-                            child: Container(
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget>[
-                                    Padding(
-                                      padding: const EdgeInsets.only(bottom: 8.0),
-                                      child: Text(name, style: new TextStyle(fontSize: 30.0, letterSpacing: 1.0,),),
-                                    ),
-                                  ],
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.5),
+                              spreadRadius: 5,
+                              blurRadius: 7,
+                              offset: Offset(0, 3), // changes position of shadow
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: <Widget>[
+                            Expanded(
+                              child: Container(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      Padding(
+                                        padding: const EdgeInsets.only(bottom: 8.0),
+                                        child: Text(name, style: new TextStyle(fontSize: 30.0, letterSpacing: 1.0,),),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                ),
-              ],
-            )
+                  ),
+                ],
+              )
+          ),
         );
       },
     );

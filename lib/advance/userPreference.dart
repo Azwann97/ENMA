@@ -35,13 +35,18 @@ class _userPreferenceState extends State<userPreference>{
           HomeBg(screenHeight: MediaQuery.of(context).size.height),
           SafeArea(
                 child: Padding(
-                  padding: const EdgeInsets.only(top: 200.0),
+                  padding: const EdgeInsets.only(top: 100.0),
                   child: Container(
                     height: SizeConfig.screenHeight*1.0,
                     width: SizeConfig.screenWidth*1.0,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
+                        Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                            height: SizeConfig.screenHeight*0.1,
+                            child: Text("Choose your preference", style: new TextStyle(color: Colors.black, fontSize: 25))
+                        ),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 32.0),
                           height: SizeConfig.screenHeight*0.6,
