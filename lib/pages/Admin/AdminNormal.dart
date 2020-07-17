@@ -1,3 +1,4 @@
+import 'package:enma/Profile/AdminProfile.dart';
 import 'package:enma/Profile/Profile.dart';
 import 'package:enma/advance/HomeBg.dart';
 import 'package:enma/pages/NormUser/All.dart';
@@ -120,7 +121,7 @@ class _AdminNormalState extends State<AdminNormal>{
                               icon: FontAwesomeIcons.user,
                               press: () {
                                 Navigator.of(context).push(new MaterialPageRoute(
-                                    builder: (BuildContext context) => new Profile(uid: widget.uid,)));
+                                    builder: (BuildContext context) => new AdminProfile(uid: widget.uid,)));
                               },
                             )
                           ],
