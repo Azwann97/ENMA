@@ -126,7 +126,7 @@ class _AllState extends State<All>{
 }
 
 // ignore: non_constant_identifier_names
-void _Join(String references, String uid, String title, String time,  DateTime _date, String venue, String UiTMBranch, String Status, String Participant, String image, String toe) {
+void _Join(String references, String uid, String title, String time,  DateTime _date, String venue, String UiTMBranch, String Status, String Participant, String image, String toe, String contact) {
   Firestore.instance.runTransaction((Transaction transaction) async {
     CollectionReference reference = Firestore.instance.collection('Joined Event');
     await reference.add({
@@ -141,6 +141,7 @@ void _Join(String references, String uid, String title, String time,  DateTime _
       "UiTM" : UiTMBranch,
       "Number of Participant Allowed" : Participant,
       "Event Type": toe,
+      "Contact Number": contact,
     });
   });
 }
@@ -351,7 +352,7 @@ class AllEventList extends StatelessWidget {
                                                           color: Colors.blueAccent,
                                                           onPressed: (){
                                                             Availability = Availability - 1;
-                                                            _Join(references, uid, title, time, _date, venue, UiTMBranch, Status, Participant, image, TOE);
+                                                            _Join(references, uid, title, time, _date, venue, UiTMBranch, Status, Participant, image, TOE, contact);
                                                             _UpdateAvailability(index: document[i].reference, Available: Availability);
                                                             Navigator.pop(context);
                                                           },
@@ -590,6 +591,29 @@ class AllEventList extends StatelessWidget {
                                                           ),
                                                         ),
                                                       ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                child: Align(
+                                                  alignment: Alignment.bottomCenter,
+                                                  child: Container(
+                                                    height: SizeConfig.screenHeight*0.1,
+                                                    width: double.infinity,
+                                                    child: RaisedButton.icon(
+                                                        shape: RoundedRectangleBorder(
+                                                          borderRadius: BorderRadius.only(
+                                                            bottomLeft: const  Radius.circular(10.0),
+                                                            bottomRight: const Radius.circular(10.0),
+                                                          ),
+                                                        ),
+                                                        color: Colors.purple,
+                                                        onPressed: (){
+                                                          Navigator.push(context,MaterialPageRoute(builder: (context) => LocationMapNormal( docId: docID, eventName: title )));
+                                                        },
+                                                        icon: Icon(Icons.location_on, color: Colors.white,),
+                                                        label: Text("View on Map", style: TextStyle(color: Colors.white))
                                                     ),
                                                   ),
                                                 ),
