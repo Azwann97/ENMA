@@ -1,0 +1,167 @@
+/*
+import 'package:flutter/material.dart';
+import 'package:enma/pages/DashboardO.dart';
+import 'package:enma/pages/login_signup_page.dart';
+import 'package:enma/services/authentication.dart';
+//import 'package:myapp/pages/home_page.dart';
+
+enum AuthStatus {
+  NOT_DETERMINED,
+  NOT_LOGGED_IN,
+  LOGGED_IN,
+}
+
+class RootPage extends StatefulWidget {
+  RootPage({this.auth});
+
+  final BaseAuth auth;
+
+  @override
+  State<StatefulWidget> createState() => new _RootPageState();
+}
+
+class _RootPageState extends State<RootPage> {
+  AuthStatus authStatus = AuthStatus.NOT_DETERMINED;
+  String _userId = "";
+
+  @override
+  void initState() {
+    super.initState();
+    widget.auth.getCurrentUser().then((user) {
+      setState(() {
+        if (user != null) {
+          _userId = user?.uid;
+        }
+        authStatus =
+            user?.uid == null ? AuthStatus.NOT_LOGGED_IN : AuthStatus.LOGGED_IN;
+      });
+    });
+  }
+
+  void loginCallback() {
+    widget.auth.getCurrentUser().then((user) {
+      setState(() {
+        _userId = user.uid.toString();
+      });
+    });
+    setState(() {
+      authStatus = AuthStatus.LOGGED_IN;
+    });
+  }
+
+  void logoutCallback() {
+    setState(() {
+      authStatus = AuthStatus.NOT_LOGGED_IN;
+      _userId = "";
+    });
+  }
+
+  Widget buildWaitingScreen() {
+    return Scaffold(
+      body: Container(
+        alignment: Alignment.center,
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    switch (authStatus) {
+      case AuthStatus.NOT_DETERMINED:
+        return buildWaitingScreen();
+        break;
+      case AuthStatus.NOT_LOGGED_IN:
+        return new LoginSignupPage(
+          auth: widget.auth,
+          loginCallback: loginCallback,
+        );
+        break;
+      case AuthStatus.LOGGED_IN:
+        if (_userId.length > 0 && _userId != null) {
+          return new DashboardO(
+            userId: _userId,
+            auth: widget.auth,
+            logoutCallback: logoutCallback,
+          );
+        } else
+          return buildWaitingScreen();
+        break;
+      default:
+        return buildWaitingScreen();
+    }
+  }
+}
+*/
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:enma/advance/loading1.dart';
+import 'package:enma/advance/userPreference.dart';
+import 'package:enma/models/CurrentUser.dart';
+import 'package:enma/pages/Admin/AdminHome.dart';
+import 'package:enma/pages/EventOrganizer/OrgHome.dart';
+import 'package:enma/pages/NormUser/Home.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:enma/SignINSignUPHandler/Handler.dart';
+import 'package:provider/provider.dart';
+import 'package:enma/models/user.dart';
+import 'package:enma/services/authentication.dart';
+
+class RootPage  extends StatefulWidget {
+  @override
+  _RootPageState createState() => _RootPageState();
+}
+class _RootPageState extends State<RootPage> {
+  FirebaseUser user;
+  String error;
+
+  _RootPageState();
+
+  void setUser(FirebaseUser user) {
+    setState(() {
+      this.user = user;
+      this.error = null;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    FirebaseAuth.instance.currentUser().then(setUser);
+
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final user = Provider.of<User>(context);
+    // return Home or Authenticate widget
+
+    if (user == null) {
+      return Handler();
+    }
+      return StreamBuilder<DocumentSnapshot>(
+        stream: Firestore.instance.collection('users').document(user.uid).snapshots(),
+        builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot){
+          if(!snapshot.hasData){
+            return Loading1();
+          }
+          else if(snapshot.data['Account Type'] == 'Normal User'){
+            if(snapshot.data['preference'] == ""){
+              return userPreference(uid: user.uid);
+            }
+            return Home(uid: user.uid, up: snapshot.data['preference']);
+          }
+          else if(snapshot.data['Account Type'] == 'Event Organizer'){
+            if(snapshot.data['preference'] == ""){
+              return userPreference(uid: user.uid);
+            }
+            return OrgHome(uid: user.uid,  contact: snapshot.data['Contact Number'], up: snapshot.data['preference']);
+          }
+          return AdminHome(uid: user.uid,  contact: snapshot.data['Contact Number'], up: snapshot.data['preference']);
+        },
+      );
+
+  }
+}
+
+
