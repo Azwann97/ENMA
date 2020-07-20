@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:enma/advance/HomeBg.dart';
+import 'package:enma/advance/Nearest.dart';
 import 'package:enma/advance/Sizeconfig.dart';
 import 'package:enma/advance/viewonmap2.dart';
 import 'package:enma/services/authentication.dart';
@@ -65,6 +66,25 @@ class _AllState extends State<All>{
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 32.0),
                             child: Text("All Events", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 30.0),),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 20.0),
+                              child: Container(
+                                height: 50,
+                                child: RaisedButton.icon(
+                                  color: Colors.orangeAccent,
+                                  onPressed: (){
+                                    Navigator.of(context).push(new MaterialPageRoute(
+                                        builder: (BuildContext context) => new Nearest(uid: widget.uid)
+                                    ));
+                                  },
+                                  icon: Icon(Icons.location_on, color: Colors.white,),
+                                  label: Text("View nearest events", style: TextStyle(color: Colors.white),),
+                                ),
+                              ),
+                            ),
                           ),
                         ],
                       ),
