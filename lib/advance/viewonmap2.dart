@@ -45,7 +45,7 @@ class _LocationMapNormalState extends State<LocationMapNormal> {
     final Marker marker = Marker(
       markerId: markerId,
       position: LatLng(data["LatLng"].latitude, data["LatLng"].longitude),
-      //infoWindow: InfoWindow(title: data['placeName'], snippet: data['category']),
+      infoWindow: InfoWindow(title: data['Event Name'], snippet: data['Event Type']),
     );
 
     setState(() {
@@ -72,6 +72,7 @@ class _LocationMapNormalState extends State<LocationMapNormal> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.deepPurpleAccent,
         title: Text('Map View', style: TextStyle( fontWeight: FontWeight.bold)),
         centerTitle: true,
       ),

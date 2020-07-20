@@ -1,39 +1,36 @@
-import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:enma/pages/EventOrganizer/AddEvent.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 
-import 'loading.dart';
+class Nearest extends StatefulWidget {
 
-class LocationMapEdit extends StatefulWidget {
+  final String uid;
 
-
-  final String docId;
-  LocationMapEdit({this.docId});
+ Nearest({this.uid});
 
   @override
-  _LocationMapEditState createState() => _LocationMapEditState();
+  _NearestState createState() => _NearestState();
 }
 
-class _LocationMapEditState extends State<LocationMapEdit> {
+class _NearestState extends State<Nearest> {
 
   CameraPosition _position = _kInitialPosition;
-  MapType currentMapType  = MapType.normal;
-  final Geolocator geolocator1 = Geolocator();                                         // new
+  MapType currentMapType = MapType.normal;
+  final Geolocator geolocator = Geolocator(); // new
   GoogleMapController mapController;
   List<Marker> allMarkers = [];
   LatLng currentLocation = LatLng(24.150, -110.32);
+
   LatLng get initialPos => currentLocation;
-  Location location1 = new Location();
-  LocationData currentLocationData1;                                                               // new
-  Position currentPosition1;                                                                                              // new
+  Location location = new Location();
+  LocationData currentLocationData; // new
+  Position currentPosition; // new
   BitmapDescriptor icon;
-  String address = '';                                                                                                                 // new
+  String address = ''; // new
   bool buscando = false;
 
   setMarker() {
@@ -59,10 +56,10 @@ class _LocationMapEditState extends State<LocationMapEdit> {
 
   void getUserLocation() async {
     Position position = await Geolocator().getCurrentPosition();
-    List<Placemark> placemark = await Geolocator().placemarkFromCoordinates(position.latitude, position.longitude);
-    currentLocation = LatLng(position.latitude,position.longitude);
+    List<Placemark> placemark = await Geolocator().placemarkFromCoordinates(
+        position.latitude, position.longitude);
+    currentLocation = LatLng(position.latitude, position.longitude);
     mapController.animateCamera(CameraUpdate.newLatLng(currentLocation));
-
   }
 
   void onCameraMove(CameraPosition position) async {
@@ -83,14 +80,14 @@ class _LocationMapEditState extends State<LocationMapEdit> {
   }
 
   Firestore firestore = Firestore.instance;
-//  Geoflutterfire geo = Geoflutterfire();
+  Geoflutterfire geo = Geoflutterfire();
 
   Map<MarkerId, Marker> markers = <MarkerId, Marker>{};
 
   setMarkers() {
-    Firestore.instance.collection('Registered Event').where('docID', isEqualTo: widget.docId).getDocuments().then((docs) {
+    firestore.collection('Registered Event').getDocuments().then((docs) {
       if (docs.documents.isNotEmpty) {
-        for (int i=0; i<docs.documents.length; i++) {
+        for (int i = 0; i < docs.documents.length; i++) {
           initMarker(docs.documents[i].data, docs.documents[i].documentID);
         }
       }
@@ -104,7 +101,8 @@ class _LocationMapEditState extends State<LocationMapEdit> {
     final Marker marker = Marker(
       markerId: markerId,
       position: LatLng(data['LatLng'].latitude, data['LatLng'].longitude),
-      infoWindow: InfoWindow(title: data['Event Name'], snippet: data['Event Type']),
+      infoWindow: InfoWindow(
+          title: data['Event Name'], snippet: data['Event Type']),
     );
 
     setState(() {
@@ -126,18 +124,13 @@ class _LocationMapEditState extends State<LocationMapEdit> {
     zoom: 10,
   );
 
-  _onMapCreated(GoogleMapController controller) {
-    setState(() {
-      mapController = controller;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.deepPurpleAccent,
-        title: Text('Edit Location', style: TextStyle( fontWeight: FontWeight.bold)),
+        title: Text(
+            'View Nearest Events', style: TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: true,
       ),
       body: Stack(
@@ -153,14 +146,14 @@ class _LocationMapEditState extends State<LocationMapEdit> {
             },
             onMapCreated: _onMapCreated,
             mapType: currentMapType,
-            onCameraMove: onCameraMove ,
+            onCameraMove: onCameraMove,
             zoomControlsEnabled: false,
             markers: Set<Marker>.of(markers.values),
           ),
-          Align(
+          /*Align(
             alignment: Alignment.center,
             child: Image.asset('assets/images/marker.png', height: 50),
-          ),
+          ),*/
           Positioned(
             top: 0,
             right: 0,
@@ -173,7 +166,9 @@ class _LocationMapEditState extends State<LocationMapEdit> {
                     padding: const EdgeInsets.all(14.0),
                     child: Row(
                       children: <Widget>[
-                        Expanded(child: Text('Move the map until the pin is directly over the NEW event location', style: TextStyle(fontSize: 15))),
+                        Expanded(child: Text(
+                            'You can move the map to have a look on nearest available events ',
+                            style: TextStyle(fontSize: 15))),
                       ],
                     ),
                   ),
@@ -183,36 +178,21 @@ class _LocationMapEditState extends State<LocationMapEdit> {
           ),
           Positioned(
               bottom: 20,
-              left: MediaQuery.of(context).size.width /26,
-              child: ButtonTheme(
-                height: 55,
-                minWidth: 300,
-                child: RaisedButton(
-                  shape: new RoundedRectangleBorder(
-                      borderRadius: new BorderRadius.circular(3.0),
-                      side: BorderSide(color: Colors.deepOrange)),
-                  onPressed: _updateGeoPoint,
-                  color: Colors.deepOrange,
-                  //textColor: Colors.white,
-                  child: Text("Replace Location",
-                      style: TextStyle(fontSize: 20.0, color: Colors.white, fontWeight: FontWeight.bold )),
-                ),
-              )
-          ),
-          Positioned(
-              bottom: 20,
-              right: MediaQuery.of(context).size.width /26,
+              right: MediaQuery
+                  .of(context)
+                  .size
+                  .width / 26,
               child: ButtonTheme(
                 height: 55,
                 minWidth: 60,
                 child: RaisedButton(
                     shape: new RoundedRectangleBorder(
                         borderRadius: new BorderRadius.circular(3.0),
-                        side: BorderSide(color: Colors.deepOrange)),
-                    onPressed:onMapTypePressed,
-                    color: Colors.deepOrange,
+                        side: BorderSide(color: Colors.red)),
+                    onPressed: onMapTypePressed,
+                    color: Colors.red,
                     //textColor: Colors.white,
-                    child:  Icon(Icons.map, color: Colors.white, size: 35)
+                    child: Icon(Icons.map, color: Colors.white, size: 35)
                 ),
               )
           ),
@@ -221,32 +201,15 @@ class _LocationMapEditState extends State<LocationMapEdit> {
     );
   }
 
-  Future  _updateGeoPoint() async {
-    DocumentReference docRef =  Firestore.instance.collection('Registered Event').document(widget.docId);
-    docRef.updateData({
-      "LatLng": new GeoPoint(currentLocation.latitude, currentLocation.longitude)
-    })
-        .whenComplete(() {
-      print('Geolocation Added');
-      Navigator.pop(context);
-      Navigator.pop(context);
-      showDialog(
-          context: context,
-          builder: (context) {
-            Future.delayed(Duration(seconds: 2), () {
-              Navigator.of(context).pop(true);
-            });
-            return AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              title: Center(child: Text('The marker successfully updated', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
-            );
-          });
+  void _updateCameraPosition(CameraPosition position) {
+    setState(() {
+      _position = position;
     });
-//      SharedPreferences sharedPrefs = await SharedPreferences.getInstance();
-//      sharedPrefs.setString('long', currentLocation.longitude.toString());
-//      sharedPrefs.setString('latit', currentLocation.latitude.toString());
   }
 
+  _onMapCreated(GoogleMapController controller) {
+    setState(() {
+      mapController = controller;
+    });
+  }
 }

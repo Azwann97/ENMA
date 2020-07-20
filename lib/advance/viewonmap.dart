@@ -71,6 +71,7 @@ class _LocationMapState extends State<LocationMap> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.deepPurpleAccent,
         title: Text('Map View', style: TextStyle( fontWeight: FontWeight.bold)),
         centerTitle: true,
       ),
